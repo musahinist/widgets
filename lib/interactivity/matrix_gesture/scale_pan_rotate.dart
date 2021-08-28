@@ -12,9 +12,9 @@ class _ScalePanRotateState extends State<ScalePanRotate> {
   Offset _initialFocalPoint = Offset.zero;
   Offset _sessionOffset = Offset.zero;
 
-  double _scale = 1.0;
+  double _scale = .2;
   double _angle = 0.0;
-  double _initialScale = 1.0;
+  double _initialScale = .2;
   double _initialAngle = 0.0;
 
   @override
