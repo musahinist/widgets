@@ -7,28 +7,36 @@ class Editor extends StatefulWidget {
   _EditorState createState() => _EditorState();
 }
 
-List<Sticker> items = [];
-
 class _EditorState extends State<Editor> {
+  List<Sticker> items = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          items.add(Sticker());
+          items.add(Sticker(
+            key: UniqueKey(),
+            onTap: (sticker) {
+              items.remove(sticker);
+              items.add(sticker);
+
+              setState(() {});
+            },
+          ));
           setState(() {});
         },
       ),
       body: Stack(children: [
         Center(),
-        ...List.generate(items.length, (index) => Center(child: items[index])),
+        ...List.generate(items.length, (index) => items[index]),
       ]),
     );
   }
 }
 
 class Sticker extends StatefulWidget {
-  const Sticker({Key? key}) : super(key: key);
+  final ValueSetter<Sticker> onTap;
+  Sticker({Key? key, required this.onTap}) : super(key: key);
 
   @override
   _StickerState createState() => _StickerState();
@@ -47,52 +55,58 @@ class _StickerState extends State<Sticker> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: visible,
-      child: Transform.translate(
-        offset: _offset + _sessionOffset,
-        child: Stack(
-          children: [
-            SizedBox(
-              height: 100,
-              width: 100,
-              child: GestureDetector(
-                onLongPress: () {
-                  visible = false;
-                  setState(() {});
-                },
-                onScaleStart: (details) {
-                  _initialFocalPoint = details.focalPoint;
-                  _initialScale = _scale;
-                  _initialAngle = _angle;
-                },
-                onScaleUpdate: (details) {
-                  setState(() {
-                    _sessionOffset = details.focalPoint - _initialFocalPoint;
-                    _scale = _initialScale * details.scale;
-                    _angle = _initialAngle + details.rotation;
-                  });
-                },
-                onScaleEnd: (details) {
-                  setState(() {
-                    _offset += _sessionOffset;
-                    _sessionOffset = Offset.zero;
-                  });
-                },
-                child: Transform.scale(
-                  scale: _scale,
-                  child: Transform.rotate(
-                    angle: _angle,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Image.network(
-                          "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/2048px-User_icon_2.svg.png"),
+    return Center(
+      child: Visibility(
+        visible: visible,
+        child: Transform.translate(
+          offset: _offset + _sessionOffset,
+          child: Stack(
+            children: [
+              SizedBox(
+                height: 100,
+                width: 100,
+                child: GestureDetector(
+                  onTap: () {
+                    widget.onTap(widget);
+                  },
+                  onLongPress: () {
+                    visible = false;
+                    setState(() {});
+                  },
+                  onScaleStart: (details) {
+                    widget.onTap(widget);
+                    _initialFocalPoint = details.focalPoint;
+                    _initialScale = _scale;
+                    _initialAngle = _angle;
+                  },
+                  onScaleUpdate: (details) {
+                    setState(() {
+                      _sessionOffset = details.focalPoint - _initialFocalPoint;
+                      _scale = _initialScale * details.scale;
+                      _angle = _initialAngle + details.rotation;
+                    });
+                  },
+                  onScaleEnd: (details) {
+                    setState(() {
+                      _offset += _sessionOffset;
+                      _sessionOffset = Offset.zero;
+                    });
+                  },
+                  child: Transform.scale(
+                    scale: _scale,
+                    child: Transform.rotate(
+                      angle: _angle,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: Image.network(
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/2048px-User_icon_2.svg.png"),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
